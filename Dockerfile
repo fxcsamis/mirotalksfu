@@ -8,7 +8,7 @@ WORKDIR /src
 
 # Environment
 ENV NODE_ENV=production
-ENV MEDIASOUP_SKIP_WORKER_PREBUILT_DOWNLOAD=true
+ENV MEDIASOUP_SKIP_MONKER_PREBUILT_DOWNLOAD=true
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -18,16 +18,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies (cache npm)
+# Copy package files
 COPY package*.json ./
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
+
+# Install dependencies (fixed - removed mount cache and npm ci)
+RUN npm install --production
 
 # Copy application code
 COPY app ./app
 COPY public ./public
 
-# Copy config template → config
+# Copy config template to config
 COPY app/src/config.template.js app/src/config.js
 
 # Default command
